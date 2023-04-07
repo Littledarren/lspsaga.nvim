@@ -65,7 +65,7 @@ local function hi_define()
     DiagnosticFname = { link = 'KeyWord' },
     DiagnosticShowNormal = { link = 'SagaNormal' },
     DiagnosticShowBorder = { link = '@property' },
-    -- Call Hierachry
+    -- Call Hierarchry
     CallHierarchyNormal = { link = 'SagaNormal' },
     CallHierarchyBorder = { link = 'SagaBorder' },
     CallHierarchyIcon = { link = 'TitleIcon' },

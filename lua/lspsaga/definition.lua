@@ -5,7 +5,7 @@ local window = require('lspsaga.window')
 local nvim_buf_set_keymap = api.nvim_buf_set_keymap
 local def = {}
 
--- a double linked list for store the node infor
+-- a double linked list for store the node info
 local ctx = {}
 
 local function clean_ctx()
@@ -260,7 +260,7 @@ function def:peek_definition(method)
     end
 
     vim.bo[node.bufnr].modifiable = true
-    --set the initail cursor pos
+    --set the initial cursor pos
     api.nvim_win_set_cursor(self.winid, { node.pos[1] + 1, node.pos[2] })
     vim.cmd('normal! zt')
     push(node)
@@ -288,7 +288,7 @@ function def:peek_definition(method)
   end)
 end
 
--- override the default the defintion handler
+-- override the default the definition handler
 function def:goto_definition(method)
   lsp.handlers[get_method(method)] = function(_, result, _, _)
     if not result or vim.tbl_isempty(result) then

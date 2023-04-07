@@ -365,6 +365,7 @@ function act:get_action_diff(num, main_buf)
   end
   local data = api.nvim_buf_get_lines(tmp_buf, 0, -1, false)
   api.nvim_buf_delete(tmp_buf, { force = true })
+  ---@diagnostic disable-next-line: missing-parameter
   local diff = vim.diff(table.concat(lines, '\n') .. '\n', table.concat(data, '\n') .. '\n')
   return diff
 end

@@ -33,15 +33,15 @@ function sd:get_diagnostic(opt)
   end
 
   local line, col = unpack(api.nvim_win_get_cursor(0))
-  local entrys = vim.diagnostic.get(cur_buf, { lnum = line - 1 })
+  local entries = vim.diagnostic.get(cur_buf, { lnum = line - 1 })
 
   if opt.line then
-    return entrys
+    return entries
   end
 
   if opt.cursor then
     local res = {}
-    for _, v in pairs(entrys) do
+    for _, v in pairs(entries) do
       if v.col <= col and v.end_col >= col then
         res[#res + 1] = v
       end
@@ -53,8 +53,8 @@ function sd:get_diagnostic(opt)
 end
 
 ---@private sort table by diagnsotic severity
-local function sort_by_severity(entrys)
-  table.sort(entrys, function(k1, k2)
+local function sort_by_severity(entries)
+  table.sort(entries, function(k1, k2)
     return k1.severity < k2.severity
   end)
 end
@@ -150,8 +150,8 @@ function sd:create_win(opt, content)
   end, 0)
 end
 
-local function find_node_by_lnum(lnum, entrys)
-  for _, items in pairs(entrys) do
+local function find_node_by_lnum(lnum, entries)
+  for _, items in pairs(entries) do
     for _, item in ipairs(items.diags) do
       if item.winline == lnum then
         return item
@@ -160,8 +160,8 @@ local function find_node_by_lnum(lnum, entrys)
   end
 end
 
-local function change_winline(cond, direction, entrys)
-  for _, items in pairs(entrys) do
+local function change_winline(cond, direction, entries)
+  for _, items in pairs(entries) do
     for _, item in ipairs(items.diags) do
       if cond(item) then
         item.winline = item.winline + direction
@@ -180,7 +180,7 @@ function sd:show(opt)
   vim.bo[self.bufnr].buftype = 'nofile'
 
   local titlehi = {}
-  for bufnr, items in pairs(opt.entrys) do
+  for bufnr, items in pairs(opt.entries) do
     ---@diagnostic disable-next-line: param-type-mismatch
     local fname = fn.fnamemodify(api.nvim_buf_get_name(tonumber(bufnr)), ':t')
     local counts = diag:get_diag_counts(items.diags)
@@ -271,7 +271,7 @@ function sd:show(opt)
     local curline = api.nvim_win_get_cursor(self.winid)[1]
     vim.bo[self.bufnr].modifiable = true
     local bufnr = text:match('%[%[(.+)%]%]')
-    local data = opt.entrys[tostring(bufnr)]
+    local data = opt.entries[tostring(bufnr)]
     local hi = titlehi[tostring(curline - 1)]
     if data.expand then
       api.nvim_buf_clear_namespace(self.bufnr, ns, curline - 1, curline + #data.diags)
@@ -284,7 +284,7 @@ function sd:show(opt)
       end
       change_winline(function(item)
         return item.winline > curline + #data.diags
-      end, -#data.diags, opt.entrys)
+      end, -#data.diags, opt.entries)
       data.expand = false
     else
       local lines = {}
@@ -335,7 +335,7 @@ function sd:show(opt)
         background = nontext.background,
       })
 
-      local entry = find_node_by_lnum(winline, opt.entrys)
+      local entry = find_node_by_lnum(winline, opt.entries)
 
       if entry then
         api.nvim_win_close(self.winid, true)
@@ -357,9 +357,9 @@ end
 
 ---migreate diagnostic to a table that
 ---use in show function
-local function migrate_diagnostics(entrys)
+local function migrate_diagnostics(entries)
   local tbl = {}
-  for _, item in ipairs(entrys) do
+  for _, item in ipairs(entries) do
     local key = tostring(item.bufnr)
     if not tbl[key] then
       tbl[key] = {
@@ -372,12 +372,12 @@ local function migrate_diagnostics(entrys)
 end
 
 function sd:show_diagnostics(opt)
-  local entrys = self:get_diagnostic(opt)
-  if next(entrys) == nil then
+  local entries = self:get_diagnostic(opt)
+  if next(entries) == nil then
     return
   end
-  sort_by_severity(entrys)
-  opt.entrys = migrate_diagnostics(entrys)
+  sort_by_severity(entries)
+  opt.entries = migrate_diagnostics(entries)
   self:show(opt)
 end
 
